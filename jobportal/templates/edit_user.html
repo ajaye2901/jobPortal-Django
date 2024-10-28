@@ -71,11 +71,11 @@
 <body>
     <div class="container">
         <h1>Edit Company</h1>
-        <form method="POST" action="{% url 'edit_company' company.id %}">
+        <form method="POST" action="{% url 'edit_employee' employee.id %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" value="{{ company.user.username }}">
+                <input type="text" id="username" name="username" value="{{ employee.user.username }}">
             </div>
             <div class="form-group">
                 <label for="address">Address:</label>

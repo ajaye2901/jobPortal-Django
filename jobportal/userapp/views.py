@@ -8,6 +8,8 @@ from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test
 from django.db import IntegrityError
+from jobapp.models import *
+from django.conf import settings
 # Create your views here.
 
 def register_company(request):
@@ -17,17 +19,17 @@ def register_company(request):
             name = request.POST.get('name')
             email = request.POST.get('email')
             phone_number = request.POST.get('phone_number')
-            mailing_address = request.POST.get('mailing_address')
+            address = request.POST.get('address')
             pin_code = request.POST.get('pin_code')
             industry = request.POST.get('industry')
             location = request.POST.get('location')  # Extract location data
             password = request.POST.get('password')
             confirm_password = request.POST.get('confirm_password')
-            website = request.POST.get('website', '')  # Optional field
-            description = request.POST.get('description', '')  # Optional field
+            # website = request.POST.get('website')  # Optional field
+            description = request.POST.get('description')  # Optional field
 
             # Validate data
-            if not all([name, email, phone_number, mailing_address , pin_code,  industry, location, password, confirm_password]):
+            if not all([name, email, phone_number, address , pin_code,  industry, location, password, confirm_password]):
                 messages.error(request, 'All fields are required.')
                 return render(request, 'register_company.html')
 
@@ -54,18 +56,18 @@ def register_company(request):
             # Create a new Company instance linked to the User
             company = Company.objects.create(
                 user=user,
-                mailing_address=mailing_address,
+                address=address,
                 pin_code=pin_code,
                 industry=industry,
                 location=location,  # Include location in the company creation
-                website=website,
+                # website=website,
                 description=description,
                 name=name  # Ensure this field is included
             )
 
             # Success message and redirect
             messages.success(request, 'Company registered successfully.')
-            return redirect('mainlogin')  # Replace with your URL name for the success page
+            return redirect('login_company')  # Replace with your URL name for the success page
 
         except KeyError as e:
             # Handle missing POST data
@@ -99,7 +101,6 @@ def user_register(request):
         years_of_experience = request.POST['years_of_experience']
         designation = request.POST['designation']
         user_type = request.POST['user_type']
-        cv = request.FILES.get('cv', None)
 
         try:
             User = get_user_model()
@@ -120,7 +121,6 @@ def user_register(request):
                     pass_out_year=pass_out_year,
                     date_of_birth=date_of_birth,
                     education_qualifications=education_qualifications,
-                    cv=cv,
                     is_Fresher=True
                 )
 
@@ -138,7 +138,6 @@ def user_register(request):
                     designation=designation,
                     date_of_birth=date_of_birth,
                     education_qualifications=education_qualifications,
-                    cv=cv,
                     is_Experienced=True
                 )
 
@@ -146,12 +145,8 @@ def user_register(request):
             new_user.save()
 
             # Authenticate and login the user
-            user = authenticate(request, username=name, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('mainlogin')  # Redirect to index page after successful registration and login
-            else:
-                messages.error(request, 'Authentication failed. Please try logging in manually.')
+            messages.success(request, 'User registered successfully.')
+            return redirect('user_login')
 
         except Exception as e:
             # Handle the error gracefully, maybe render the registration form again with error messages
@@ -164,21 +159,21 @@ def user_register(request):
 
 def login_company(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
         try:
-            user = get_user_model().objects.get(username=username)
+            user = get_user_model().objects.get(email=email)
         except get_user_model().DoesNotExist:
-            messages.error(request, 'Username does not exist.')
-            return render(request, 'login_company.html')
+            messages.error(request, 'No company profile found. Please create one first.')
+            return redirect('register_company')
 
         if user.check_password(password):
-            authenticated_user = authenticate(request, username=username, password=password)
+            authenticated_user = authenticate(request, username=email, password=password)
             if authenticated_user is not None:
                 login(request, authenticated_user)
                 messages.success(request, 'Login Successful')
-                return redirect('index')
+                return redirect('company_dashboard')
             else:
                 messages.error(request, 'Invalid login credentials.')
         else:
@@ -190,17 +185,17 @@ def login_company(request):
 
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
         try:
-            user = get_user_model().objects.get(username=username)
+            user = get_user_model().objects.get(email=email)
         except get_user_model().DoesNotExist:
-            messages.error(request, 'Username does not exist.')
+            messages.error(request, 'email does not exist.')
             return render(request, 'user_login.html')
 
         if user.check_password(password):
-            authenticated_user = authenticate(request, username=username, password=password)
+            authenticated_user = authenticate(request, username=email, password=password)
             if authenticated_user is not None:
                 login(request, authenticated_user)
                 messages.success(request, 'Login Successful')
@@ -216,3 +211,111 @@ def user_login(request):
 
 def mainlogin(request):
     return render(request, 'mainlogin.html' )    
+
+def user_dashboard(request):
+    if request.user.is_authenticated and request.user.is_employee:
+        try:
+            current_user = Employee.objects.get(user=request.user)
+            jobs = Job.objects.all() 
+        except Employee.DoesNotExist:
+            current_user = None
+            jobs = Job.objects.all()
+    else:
+        return redirect('user_login')
+    return render(request, 'user_dashboard.html',{'employee' :current_user ,'jobs': jobs} )   
+
+def company_dashboard(request):
+    if request.user.is_authenticated and request.user.is_company:
+        try:
+            current_company = Company.objects.get(user=request.user)
+            jobs = Job.objects.filter(company_name=current_company)
+        except Company.DoesNotExist:
+            current_company = None
+            jobs = []
+    else:
+        return redirect('login_employee')  # Redirect if not a company user
+
+    # Pass the company object to the template
+    return render(request, 'dashboard.html', {'company': current_company, 'jobs': jobs})
+
+
+def admin_dashboard(request):
+    companies = Company.objects.all()
+    employees = Employee.objects.all()  # Query all employees
+
+    context = {
+        'companies': companies,
+        'employees': employees,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+def edit_employee(request, id):
+    employee = get_object_or_404(Employee, id=id)
+    if request.method == 'POST':
+        employee.user.username = request.POST.get('username', employee.user.username)
+        employee.is_Fresher = 'is_Fresher' in request.POST
+        employee.is_Experienced = 'is_Experienced' in request.POST
+        employee.save()
+        messages.success(request, 'User updated successfully.')
+        return redirect('admin_dashboard')
+    return render(request, 'edit_user.html', {'employee': employee})
+
+def delete_employee(request, id):
+    employee = get_object_or_404(User, id=id)
+    if request.method == 'POST':
+        employee.delete()
+        messages.success(request, 'User deleted successfully.')
+        return redirect('admin_dashboard')
+    return render(request, 'confirm_delete_user.html', {'employee': employee})
+
+
+
+
+def view_company(request, id):
+    company = get_object_or_404(Company, id=id)
+    return render(request, 'view_company.html', {'company': company})
+
+
+def edit_company(request, id):
+    company = get_object_or_404(Company, id=id)
+    
+    if request.method == 'POST':
+        company.address = request.POST.get('address')
+        company.pin_code = request.POST.get('pin_code')
+        company.industry = request.POST.get('industry')
+        company.location = request.POST.get('location')  
+        company.description = request.POST.get('description')
+        company.save()
+        messages.success(request, 'Company details updated successfully.')
+        return redirect('view_company', id=company.id)
+
+    return render(request, 'edit_company.html', {'company': company})
+
+
+def delete_company(request, id):
+    company = get_object_or_404(User, id=id)
+    if request.method == 'POST':
+        company.delete()
+        messages.success(request, 'Company successfully deleted.')
+        return redirect('admin_dashboard')
+
+
+
+def logout_company(request):
+    logout(request)
+    return redirect('index')  
+
+def logout_employee(request):
+    logout(request)
+    return redirect('index')  
+
+
+# Check if the user is a superuser
+def superuser_required(view_func):
+    decorated_view_func = user_passes_test(lambda user: user.is_superuser)(view_func)
+    return decorated_view_func
+
+@superuser_required
+def logout_superuser(request):
+    logout(request)
+    return redirect('mainlogin')  # Redirect to the login page or any other page

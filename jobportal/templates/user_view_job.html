@@ -70,11 +70,12 @@
                     <p class="card-text">{{ job.description|safe }}</p>
                 </div>
             </div>
-            <div class="card-footer text-center">
+            <a href="{% url 'apply_job' job.id %}" class="btn btn-outline-secondary" style="color:blue">Apply</a>
+            <!-- <div class="card-footer text-center">
                 <a href="{% url 'user_dashboard' %}" class="btn" style="color: cornflowerblue;">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </a>
-            </div>
+            </div> -->
         </div>
     </main>
 

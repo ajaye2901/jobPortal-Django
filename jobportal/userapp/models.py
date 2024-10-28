@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser) :
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    phone_no = models.CharField(max_length=10)
+    phone_number = models.CharField(max_length=10)
     is_company = models.BooleanField(default=False)
     is_employee = models.BooleanField(default=False)
 
@@ -14,7 +14,7 @@ class User(AbstractUser) :
         return self.username
     
     USERNAME_FIELD = 'email'  # Use email for authentication
-    REQUIRED_FIELDS = ['username', 'name', 'phone_no']
+    REQUIRED_FIELDS = ['username', 'name', 'phone_number']
 
     def __str__(self):
         return self.name
@@ -44,7 +44,7 @@ class Company(models.Model) :
     pin_code = models.CharField(max_length=6)
     industry = models.CharField(max_length=100, choices=INDUSTRY_CHOICES)
     company_type = models.CharField(max_length=100, choices=TYPE_CHOICES, blank=True, null=True)
-    website = models.URLField(blank=True, null=True)
+    # website = models.URLField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=100)
 
@@ -56,7 +56,6 @@ class Employee(models.Model):
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
     date_of_birth = models.DateField()
     education_qualifications = models.TextField(blank=True, null=True)
-    cv = models.FileField(upload_to='cvs/', blank=True, null=True)
     
     # Fresher specific fields
     college_name = models.CharField(max_length=100, blank=True, null=True)

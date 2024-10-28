@@ -1,5 +1,6 @@
 from django.urls import path
 from userapp.views import *
+from jobapp.views import *
 
 
 urlpatterns = [
@@ -9,4 +10,24 @@ urlpatterns = [
     path('user_login/',user_login, name='user_login'),
 
     path('mainlogin/',mainlogin,name='mainlogin'), 
+
+    path('user_dashboard/',user_dashboard, name='user_dashboard'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
+    path('company_dashboard/', company_dashboard, name='company_dashboard'),
+    
+    path('upload-cv/', upload_cv, name='upload_cv'),
+    
+    path('edit_employee/<int:id>/', edit_employee, name='edit_employee'),
+    path('delete_employee/<int:id>/', delete_employee, name='delete_employee'),
+    path('view_company/<int:id>/', view_company, name='view_company'),
+    path('edit_company/<int:id>/', edit_company, name='edit_company'),
+    path('delete_company/<int:id>/', delete_company, name='delete_company'),
+
+    path('logout_company/', logout_company, name='logout_company'),
+    path('logout_employee/', logout_employee, name='logout_employee'),
+    path('logout_superuser/', logout_superuser, name='logout_superuser'),
+
+    
+    
 ]

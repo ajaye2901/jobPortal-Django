@@ -247,7 +247,9 @@
     
   <!-- First Navbar -->
   <nav class="top-navbar">
-    <h2>Job Website</h2>
+    <a href="{% url 'index' %}" class="btn">
+      <h3>Job Website</h3>  
+  </a>
     <div class="top-navbar-buttons">
         {% if user.is_authenticated %}
             {% if user.is_superuser %}
@@ -273,7 +275,7 @@
                 </a>
             {% endif %}
         {% else %}
-            <!-- <a href="{% url 'mainlogin' %}" class="top-btn"> -->
+            <a href="{% url 'mainlogin' %}" class="top-btn">
                 <i class="fa fa-sign-in" style="font-size:15px"></i> Login
             </a>
         {% endif %}

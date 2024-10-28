@@ -138,6 +138,10 @@
                   <strong title="Location"><i class="fa fa-map-marker"></i> {{ job.location }}</strong><p>
                   <strong title="Category"><i class="fa fa-tag"></i> {{ job.job_category }}</strong>   
                 </small>
+                <div class="action-buttons mt-3">
+                  <a href="{% url 'user_view_job' job.id %}" class="btn" style="color:green">Details</a>
+                  <a href="{% url 'apply_job' job.id %}" class="btn" style="color:blue">Apply</a>
+              </div>
               </div>
             </div>
           </div>
