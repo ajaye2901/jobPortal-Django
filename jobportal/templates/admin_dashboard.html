@@ -79,7 +79,7 @@
                     <div class="header-left"></div>
                     <div class="header-right">
                         {% if user.is_authenticated %}
-                            <a class="btn" href="{% url 'logout_company' %}" style="color: red;">
+                            <a class="btn" href="{% url 'mainlogin' %}" style="color: red;">
                                 <i class="fas fa-sign-out-alt" style="color: red;"></i> Logout
                             </a>
                             <span style="color: cornflowerblue;">{{ user.username }}</span>
@@ -106,7 +106,7 @@
                             <h6 class="mb-10">Your Account</h6>
                             {% if user.is_authenticated %}
                             <span style="color: cornflowerblue;">{{ user.username }}</span>
-                            <a class="btn" href="{% url 'logout_company' %}" style="color: red;">
+                            <a class="btn" href="{% url 'logout_superuser' %}" style="color: red;">
                                 <i class="fas fa-sign-out-alt" style="color: red; margin-right: 8px;"></i> Logout
                             </a>
                             {% endif %}
@@ -164,7 +164,7 @@
                                 {% endif %}
                             </div>
                             <a class="btn" style="color:blue;" href="{% url 'view_employee' employee.id %}">View</a>
-                            <form method="post" action="{% url 'delete_employee' employee.id %}" style="display: inline;">
+                            <form method="post" action="{% url 'user_delete' employee.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn" style="color: red;">Delete</button>
                             </form>

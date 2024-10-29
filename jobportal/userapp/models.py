@@ -9,15 +9,12 @@ class User(AbstractUser) :
     phone_number = models.CharField(max_length=10)
     is_company = models.BooleanField(default=False)
     is_employee = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.username
     
     USERNAME_FIELD = 'email'  # Use email for authentication
     REQUIRED_FIELDS = ['username', 'name', 'phone_number']
 
     def __str__(self):
-        return self.name
+        return self.username
 
 class Company(models.Model) :
     INDUSTRY_CHOICES = [
@@ -70,4 +67,4 @@ class Employee(models.Model):
     is_Experienced = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username
+        return self.user.name

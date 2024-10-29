@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db import IntegrityError
 from jobapp.models import *
 from django.conf import settings
+from django.db import transaction
 # Create your views here.
 
 def register_company(request):
@@ -209,6 +210,32 @@ def user_login(request):
     
     return render(request, 'user_login.html')
 
+def login_admin(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            user = get_user_model().objects.get(email=email)
+        except get_user_model().DoesNotExist:
+            messages.error(request, 'No company profile found. Please create one first.')
+            return redirect('register_company')
+
+        if user.check_password(password):
+            authenticated_user = authenticate(request, username=email, password=password)
+            if authenticated_user is not None and authenticated_user.is_superuser:
+                login(request, authenticated_user)
+                messages.success(request, 'Login Successful')
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, 'Invalid login credentials.')
+        else:
+            messages.error(request, 'Incorrect password.')
+
+        return render(request, 'admin_login.html')
+
+    return render(request, 'admin_login.html')
+
 def mainlogin(request):
     return render(request, 'mainlogin.html' )    
 
@@ -260,14 +287,31 @@ def edit_employee(request, id):
         return redirect('admin_dashboard')
     return render(request, 'edit_user.html', {'employee': employee})
 
-def delete_employee(request, id):
-    employee = get_object_or_404(User, id=id)
-    if request.method == 'POST':
-        employee.delete()
-        messages.success(request, 'User deleted successfully.')
-        return redirect('admin_dashboard')
-    return render(request, 'confirm_delete_user.html', {'employee': employee})
 
+def user_delete(request, employee_id):
+    # Retrieve the employee based on the provided ID
+    employee = get_object_or_404(Employee, id=employee_id)
+    
+    if request.method == 'POST':
+        try:
+            # Retrieve the associated user
+            user = employee.user
+            username = user.username  # Store for message display
+            
+            # Delete the user, which will also remove the employee (if cascade is enabled)
+            user.delete()
+            
+            # Success message
+            messages.success(request, f'User "{username}" and associated employee deleted successfully.')
+        except Exception as e:
+            # Handle errors gracefully and display an error message
+            messages.error(request, f'Error deleting user: {str(e)}')
+        
+        # Redirect to admin dashboard after deletion
+        return redirect('admin_dashboard')
+    
+    # Render confirmation page
+    return render(request, 'confirm_delete_user.html', {'employee': employee})
 
 
 
@@ -292,13 +336,23 @@ def edit_company(request, id):
     return render(request, 'edit_company.html', {'company': company})
 
 
-def delete_company(request, id):
-    company = get_object_or_404(User, id=id)
+def delete_company(request, company_id):
+    company = get_object_or_404(Company, id=company_id)
     if request.method == 'POST':
-        company.delete()
-        messages.success(request, 'Company successfully deleted.')
-        return redirect('admin_dashboard')
+        try:
+            user = company.user
+            username = user.username
 
+            user.delete()
+
+            messages.success(request, f'User "{username}" and associated employee deleted successfully.')
+        except Exception as e:
+            # Handle errors gracefully and display an error message
+            messages.error(request, f'Error deleting user: {str(e)}')
+        
+        # Redirect to admin dashboard after deletion
+        return redirect('admin_dashboard')
+    
 
 
 def logout_company(request):
@@ -318,4 +372,4 @@ def superuser_required(view_func):
 @superuser_required
 def logout_superuser(request):
     logout(request)
-    return redirect('mainlogin')  # Redirect to the login page or any other page
+    return redirect('login_admin')  # Redirect to the login page or any other page

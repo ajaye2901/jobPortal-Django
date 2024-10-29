@@ -22,11 +22,13 @@ urlpatterns = [
     path('delete_employee/<int:id>/', delete_employee, name='delete_employee'),
     path('view_company/<int:id>/', view_company, name='view_company'),
     path('edit_company/<int:id>/', edit_company, name='edit_company'),
-    path('delete_company/<int:id>/', delete_company, name='delete_company'),
+    path('delete_company/<int:company_id>/', delete_company, name='delete_company'),
+    path('delete-user/<int:employee_id>/', user_delete, name='user_delete'),
 
     path('logout_company/', logout_company, name='logout_company'),
     path('logout_employee/', logout_employee, name='logout_employee'),
     path('logout_superuser/', logout_superuser, name='logout_superuser'),
+    path('login_admin/', login_admin, name='login_admin')
 
     
     
