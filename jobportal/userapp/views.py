@@ -260,7 +260,7 @@ def company_dashboard(request):
             current_company = None
             jobs = []
     else:
-        return redirect('login_employee')  # Redirect if not a company user
+        return redirect('user_login')  # Redirect if not a company user
 
     # Pass the company object to the template
     return render(request, 'dashboard.html', {'company': current_company, 'jobs': jobs})
@@ -320,8 +320,8 @@ def view_company(request, id):
     return render(request, 'view_company.html', {'company': company})
 
 
-def edit_company(request, id):
-    company = get_object_or_404(Company, id=id)
+def edit_company(request, company_id):
+    company = get_object_or_404(Company, id=company_id)
     
     if request.method == 'POST':
         company.address = request.POST.get('address')
@@ -331,7 +331,7 @@ def edit_company(request, id):
         company.description = request.POST.get('description')
         company.save()
         messages.success(request, 'Company details updated successfully.')
-        return redirect('view_company', id=company.id)
+        return redirect('admin_dashboard')
 
     return render(request, 'edit_company.html', {'company': company})
 

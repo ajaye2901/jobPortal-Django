@@ -69,7 +69,6 @@
                     <div class="block-signin">
                         <a class="btn btn-default" href="{% url 'add_job' %}" style="color:white;">Post Job</a>
                         <a class="btn btn-default" href="{% url 'view_applications' %}" style="color:white;">View Applications</a>
-                        <a href="{% url 'edit_company' company.id %}" class="btn btn-warning">Edit Company</a>
                         <a class="btn" href="{% url 'logout_company' %}" style="color: red;"><i class="fas fa-sign-out-alt" style="color: red;"></i> Logout</a>
                         <span style="color: cornflowerblue;">{{ user.username }}</span>
                     </div>
@@ -101,7 +100,6 @@
                             <a class="btn btn-default icon-edit hover-up" href="{% url 'add_job' %}">Post Job</a>
                             <a class="btn btn-default" href="{% url 'view_applications' %}" style="color:white;">View Applications</a>
                         </div>
-                        <a class="btn btn-primary" href="{% url 'view_company' company.id %}" style="color: cornflowerblue;">{{ user.username }}</a>
                         
                             <i class="fas fa-sign-out-alt" style="color: red; margin-right: 8px;"></i> Logout
                         </a>
